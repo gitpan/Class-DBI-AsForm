@@ -5,9 +5,11 @@ use warnings;
 
 require Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT = qw( to_cgi to_field _to_textarea _to_textfield _to_select );
-our $VERSION = '1.1';
+our @EXPORT = qw( to_cgi to_field _to_textarea _to_textfield _to_select
+type_of );
+our $VERSION = '1.2';
 use CGI qw/:standard/;
+my %types_cache;
 
 =head1 NAME
 
@@ -61,6 +63,7 @@ snippets.
 
 sub to_cgi {
     my $class = shift;
+    %types_cache = ();
     map { $_ => $class->to_field($_) } $class->columns;
 }
 
@@ -74,20 +77,40 @@ of has-a relationships.
 =cut
 
 sub to_field {
-    my ($class, $field, $how) = @_;
+    my ($self, $field, $how) = @_;
+    my $class = ref $self || $self;
     if ($how and $how =~ /^(text(area|field)|select)$/) {
         no strict 'refs';
         my $meth = "_to_$how";
         return $class->$meth($field);
     }
     my $hasa = $class->__hasa_rels->{$field};
-    return $class->_to_select($field, $hasa->[0])
+    return $self->_to_select($field, $hasa->[0])
         if defined $hasa and $hasa->[0]->isa("Class::DBI");
 
-    my $type = $class->__data_type->{$field};
-    return $class->_to_textarea($field)
+    my $type = $class->type_of($field);
+    return $self->_to_textarea($field)
         if $type and $type =~ /^(TEXT|BLOB)$/i;
-    return $class->_to_textfield($field);
+    return $self->_to_textfield($field);
+}
+
+sub type_of {
+    my ($class, $field) = @_;
+    _fill_cache($class) if !exists $types_cache{$class."/".$field};
+    $types_cache{$class."/".$field}{type};
+}
+
+sub _fill_cache {
+    my $class = shift;
+    my $sth = $class->db_Main->column_info(undef, undef, $class->table, '%');
+    $sth->execute();
+    while ( my $ref = $sth->fetchrow_hashref() )
+        {
+            next unless $ref->{TYPE_NAME} =~ /SET|ENUM/i;
+            $types_cache{ $class. "/". $ref->{COLUMN_NAME} }{type} = $ref->{TYPE_NAME};
+            $types_cache{ $class. "/". $ref->{COLUMN_NAME} }{'values'} 
+                    = [ @{$ref->{mysql_values}} ];
+    }
 }
 
 sub _to_textarea {
