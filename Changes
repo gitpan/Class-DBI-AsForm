@@ -1,5 +1,10 @@
 Revision history for Perl extension Class::DBI::AsForm.
 
+2.4   Mon Dec 27 16:36:25 UTC 2004
+    - Tony Bowden now maintainer
+    - switch to DBD::SQLite2 for tests
+    - Add rows & cols to textarea [Marcus Ramberg]
+
 2.3   Mon Jul 19 12:22:50 BST 2004
     - Patch from Randall Lucas to fix textarea breakage
     - The tests work too

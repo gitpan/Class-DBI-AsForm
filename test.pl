@@ -1,7 +1,7 @@
 package Foo;
 use Test::More;
-if (!require DBD::SQLite) {
-    plan skip_all => "Couldn't load DBD::SQLite";
+if (!require DBD::SQLite2) {
+    plan skip_all => "Couldn't load DBD::SQLite2";
 }
 plan tests => 4;
 
@@ -9,7 +9,7 @@ package DBI::Test;
 use base 'Class::DBI';
 
 BEGIN { unlink 'test.db'; };
-DBI::Test->set_db("Main", "dbi:SQLite:dbname=test.db");
+DBI::Test->set_db("Main", "dbi:SQLite2:dbname=test.db");
 DBI::Test->db_Main->do("CREATE TABLE foo (
    id integer not null primary key,
    bar integer,

@@ -1,16 +1,19 @@
 package Class::DBI::AsForm;
+
 use 5.006;
+
 use strict;
 use warnings;
-use Class::DBI::Plugin::Type ();
-our $OLD_STYLE = 0;
 
+use base 'Exporter';
+
+use Class::DBI::Plugin::Type ();
 use HTML::Element;
-require Exporter;
-our @ISA = qw(Exporter);
-our @EXPORT = qw( to_cgi to_field _to_textarea _to_textfield _to_select
-type_of );
-our $VERSION = '2.3';
+
+our $OLD_STYLE = 0;
+our @EXPORT    = qw( to_cgi to_field _to_textarea _to_textfield _to_select
+	type_of );
+our $VERSION = '2.4';
 
 =head1 NAME
 
@@ -64,8 +67,8 @@ HTML::Element objects representing form widgets.
 =cut
 
 sub to_cgi {
-    my $class = shift;
-    map { $_ => $class->to_field($_) } $class->columns;
+	my $class = shift;
+	map { $_ => $class->to_field($_) } $class->columns;
 }
 
 =head2 to_field($field [, $how])
@@ -78,76 +81,93 @@ of has-a relationships.
 =cut
 
 sub to_field {
-    my ($self, $field, $how) = @_;
-    my $class = ref $self || $self;
-    if ($how and $how =~ /^(text(area|field)|select)$/) {
-        no strict 'refs';
-        my $meth = "_to_$how";
-        return $class->$meth($field);
-    }
-    my $hasa = $class->__hasa_rels->{$field};
-    return $self->_to_select($field, $hasa->[0])
-        if defined $hasa and $hasa->[0]->isa("Class::DBI");
+	my ($self, $field, $how) = @_;
+	my $class = ref $self || $self;
+	if ($how and $how =~ /^(text(area|field)|select)$/) {
+		no strict 'refs';
+		my $meth = "_to_$how";
+		return $class->$meth($field);
+	}
+	my $hasa = $class->__hasa_rels->{$field};
+	return $self->_to_select($field, $hasa->[0])
+		if defined $hasa
+		and $hasa->[0]->isa("Class::DBI");
 
-    # Right, have some of this!
-    eval "package $class; Class::DBI::Plugin::Type->import()";
-    my $type = $class->column_type($field);
-    return $self->_to_textarea($field)
-        if $type and $type =~ /^(TEXT|BLOB)$/i;
-    return $self->_to_textfield($field);
+	# Right, have some of this!
+	eval "package $class; Class::DBI::Plugin::Type->import()";
+	my $type = $class->column_type($field);
+	return $self->_to_textarea($field)
+		if $type
+		and $type =~ /^(TEXT|BLOB)$/i;
+	return $self->_to_textfield($field);
 }
 
 sub _to_textarea {
-    my ($self, $col) = @_;
-    my $a = HTML::Element->new("textarea", name => $col);
-    if (ref $self) { $a->push_content($self->$col) }
-    $OLD_STYLE && return $a->as_HTML;
-    $a;
+	my ($self, $col) = @_;
+	my $a = HTML::Element->new("textarea", name => $col);
+	if (ref $self) { $a->push_content($self->$col) }
+	$OLD_STYLE && return $a->as_HTML;
+	$a;
 }
 
 sub _to_textfield {
-    my ($self, $col) = @_;
-    my $value = ref $self && $self->$col;
-    my $a = HTML::Element->new("input", type=> "text", name => $col);
-    $a->attr("value" => $value) if $value;
-    $OLD_STYLE && return $a->as_HTML;
-    $a;
+	my ($self, $col) = @_;
+	my $value = ref $self && $self->$col;
+	my $a = HTML::Element->new("input", type => "text", name => $col);
+	$a->attr("value" => $value) if $value;
+	$OLD_STYLE && return $a->as_HTML;
+	$a;
 }
 
 sub _to_select {
-    my ($self, $col, $hint) = @_;
-    my $has_a_class = $hint || $self->__hasa_rels->{$col}->[0];
-    my @objs = $has_a_class->retrieve_all;
-    my $a = HTML::Element->new("select", name => $col);
-    for (@objs) { 
-        my $sel = HTML::Element->new("option", value => $_->id);
-        $sel->attr("selected" => "selected") if ref $self 
-                                                and eval { $_->id eq $self->$col->id };
-        $sel->push_content($_->stringify_self);
-        $a->push_content($sel);
-    }
-    $OLD_STYLE && return $a->as_HTML;
-    $a;
+	my ($self, $col, $hint) = @_;
+	my $has_a_class = $hint || $self->__hasa_rels->{$col}->[0];
+	my @objs        = $has_a_class->retrieve_all;
+	my $a           = HTML::Element->new("select", name => $col);
+	for (@objs) {
+		my $sel = HTML::Element->new("option", value => $_->id);
+		$sel->attr("selected" => "selected")
+			if ref $self
+			and eval { $_->id eq $self->$col->id };
+		$sel->push_content($_->stringify_self);
+		$a->push_content($sel);
+	}
+	$OLD_STYLE && return $a->as_HTML;
+	$a;
 }
-
-
-# Preloaded methods go here.
 
 1;
 
 =head1 CHANGES
 
-Version 1.x of this module returned raw HTML instead of C<HTML::Element>
-objects, which made it harder to manipulate the HTML before sending it
-out. If you depend on the old behaviour, set C<$Class::DBI::AsForm::OLD_STYLE>
-to a true value.
+Version 1.x of this module returned raw HTML instead of
+C<HTML::Element> objects, which made it harder to manipulate the
+HTML before sending it out. If you depend on the old behaviour, set
+C<$Class::DBI::AsForm::OLD_STYLE> to a true value.
 
-=head1 AUTHOR
+=head1 MAINTAINER 
 
-Simon Cozens, C<simon@cpan.org>
+Tony Bowden
+
+=head1 ORIGINAL AUTHOR
+
+Simon Cozens
+
+=head1 BUGS and QUERIES
+
+Please direct all correspondence regarding this module to:
+  bug-Class-DBI-AsForm@rt.cpan.org
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright 2003-2004 by Simon Cozens / Tony Bowden
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
 L<Class::DBI>, L<Class::DBI::FromCGI>, L<HTML::Element>.
 
 =cut
+
