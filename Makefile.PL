@@ -7,7 +7,7 @@ WriteMakefile(
     PREREQ_PM		=> {Class::DBI => 0.94,
                         DBI => 1.21,
                         HTML::Element => 0,
-                        }, # e.g., Module::Name => 1.1
+                        Class::DBI::Plugin::Type => 0}, # e.g., Module::Name => 1.1
     ABSTRACT_FROM   => 'AsForm.pm', # retrieve abstract from module
-    AUTHOR          => 'Simon Cozens <simon@kasei.com>'
+    AUTHOR          => 'Simon Cozens <simon@cpan.org>'
 );

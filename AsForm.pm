@@ -2,6 +2,7 @@ package Class::DBI::AsForm;
 use 5.006;
 use strict;
 use warnings;
+use Class::DBI::Plugin::Type ();
 our $OLD_STYLE = 0;
 
 use HTML::Element;
@@ -9,8 +10,7 @@ require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw( to_cgi to_field _to_textarea _to_textfield _to_select
 type_of );
-our $VERSION = '2.1';
-my %types_cache;
+our $VERSION = '2.2';
 
 =head1 NAME
 
@@ -21,13 +21,15 @@ Class::DBI::AsForm - Produce HTML form elements for database columns
     package Music::CD;
     use Class::DBI::AsForm;
     use base 'Class::DBI';
+    use CGI;
     ...
 
     sub create_or_edit {
         my $class = shift;
         my %cgi_field = $class->to_cgi;
         return start_form,
-               (map { "<b>$_</b>: ". $cgi_field{$_}->as_HTML." <br>" } $class->Columns),
+               (map { "<b>$_</b>: ". $cgi_field{$_}->as_HTML." <br>" } 
+                    $class->Columns),
                end_form;
     }
 
@@ -63,7 +65,6 @@ HTML::Element objects representing form widgets.
 
 sub to_cgi {
     my $class = shift;
-    %types_cache = ();
     map { $_ => $class->to_field($_) } $class->columns;
 }
 
@@ -88,28 +89,12 @@ sub to_field {
     return $self->_to_select($field, $hasa->[0])
         if defined $hasa and $hasa->[0]->isa("Class::DBI");
 
-    my $type = $class->type_of($field);
-    return $self->_to_textarea($field)
+    # Right, have some of this!
+    eval "package $class; Class::DBI::Plugin::Type->import()";
+    my $type = $class->column_type($field);
+    return $class->_to_textarea($field)
         if $type and $type =~ /^(TEXT|BLOB)$/i;
     return $self->_to_textfield($field);
-}
-
-sub type_of {
-    my ($class, $field) = @_;
-    _fill_cache($class) if !exists $types_cache{$class."/".$field};
-    $types_cache{$class."/".$field}{type};
-}
-
-sub _fill_cache {
-    my $class = shift;
-    my $sth = $class->db_Main->column_info(undef, undef, $class->table, '%');
-    while ( my $ref = $sth->fetchrow_hashref() )
-        {
-            $types_cache{ $class. "/". $ref->{COLUMN_NAME} }{type} = $ref->{TYPE_NAME};
-            $types_cache{ $class. "/". $ref->{COLUMN_NAME} }{'values'} 
-                    = [ @{$ref->{mysql_values}} ]
-            if $ref->{TYPE_NAME} =~ /SET|ENUM/i;
-    }
 }
 
 sub _to_textarea {

@@ -1,5 +1,8 @@
 Revision history for Perl extension Class::DBI::AsForm.
 
+2.2   Sat Mar 20 17:36:02 GMT 2004
+    - use the ::Type plugin instead of that mysql ugliness.
+
 2.1   Thu Jan 29 14:51:31 GMT 2004
     - 2.0 was a rewrite to use HTML::Element
     - This release fixes cases where value => ""
