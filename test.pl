@@ -1,5 +1,28 @@
-package Bar;
+package Foo;
+use Test::More;
+if (!require DBD::SQLite) {
+    plan skip_all => "Couldn't load DBD::SQLite";
+}
+plan tests => 4;
+
+package DBI::Test;
 use base 'Class::DBI';
+
+BEGIN { unlink 'test.db'; };
+DBI::Test->set_db("Main", "dbi:SQLite:dbname=test.db");
+DBI::Test->db_Main->do("CREATE TABLE foo (
+   id integer not null primary key,
+   bar integer,
+   baz varchar(255)
+);");
+DBI::Test->db_Main->do("CREATE TABLE bar (
+   id integer not null primary key,
+   test varchar(255)
+);");
+DBI::Test->table("test");
+package Bar;
+use base 'DBI::Test';
+Bar->table("bar");
 Bar->columns(All => qw/id test/);
 Bar->columns(Stringify => qw/test/);
 sub retrieve_all {
@@ -7,8 +30,8 @@ sub retrieve_all {
 }
 
 package Foo;
-use Test::More tests => 4;
-use base 'Class::DBI';
+use base 'DBI::Test';
+Foo->table("foo");
 use_ok("Class::DBI::AsForm");
 $Class::DBI::AsForm::OLD_STYLE=1;
 *type_of = sub { "varchar" };

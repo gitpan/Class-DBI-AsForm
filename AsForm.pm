@@ -10,7 +10,7 @@ require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw( to_cgi to_field _to_textarea _to_textfield _to_select
 type_of );
-our $VERSION = '2.2';
+our $VERSION = '2.3';
 
 =head1 NAME
 
@@ -92,7 +92,7 @@ sub to_field {
     # Right, have some of this!
     eval "package $class; Class::DBI::Plugin::Type->import()";
     my $type = $class->column_type($field);
-    return $class->_to_textarea($field)
+    return $self->_to_textarea($field)
         if $type and $type =~ /^(TEXT|BLOB)$/i;
     return $self->_to_textfield($field);
 }
@@ -122,7 +122,7 @@ sub _to_select {
     for (@objs) { 
         my $sel = HTML::Element->new("option", value => $_->id);
         $sel->attr("selected" => "selected") if ref $self 
-                                                and eval { $_->id == $self->$col->id };
+                                                and eval { $_->id eq $self->$col->id };
         $sel->push_content($_->stringify_self);
         $a->push_content($sel);
     }

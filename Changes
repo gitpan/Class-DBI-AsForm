@@ -1,5 +1,9 @@
 Revision history for Perl extension Class::DBI::AsForm.
 
+2.3   Mon Jul 19 12:22:50 BST 2004
+    - Patch from Randall Lucas to fix textarea breakage
+    - The tests work too
+
 2.2   Sat Mar 20 17:36:02 GMT 2004
     - use the ::Type plugin instead of that mysql ugliness.
 
