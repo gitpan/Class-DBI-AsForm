@@ -4,7 +4,10 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME	    	=> 'Class::DBI::AsForm',
     VERSION_FROM	=> 'AsForm.pm', # finds $VERSION
-    PREREQ_PM		=> {Class::DBI => 0.94}, # e.g., Module::Name => 1.1
+    PREREQ_PM		=> {Class::DBI => 0.94,
+                        DBI => 1.21,
+                        HTML::Element => 0,
+                        }, # e.g., Module::Name => 1.1
     ABSTRACT_FROM   => 'AsForm.pm', # retrieve abstract from module
     AUTHOR          => 'Simon Cozens <simon@kasei.com>'
 );
