@@ -6,7 +6,7 @@ use warnings;
 require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw( to_cgi to_field _to_textarea _to_textfield _to_select );
-our $VERSION = '1.0';
+our $VERSION = '1.1';
 use CGI qw/:standard/;
 
 =head1 NAME
@@ -105,7 +105,7 @@ sub _to_select {
     my $has_a_class = $hint || $self->__hasa_rels->{$col}->[0];
     my @objs = $has_a_class->retrieve_all;
     my $sel = -1;
-    if (ref $self) { $sel = $self->$col()->id }
+    if (ref $self and $self->$col()) { $sel = $self->$col()->id }
     my %labels = map { $_->id => "".$_ } @objs;
     return popup_menu( -name => $col,
                        -values => [ map {$_->id} @objs ],

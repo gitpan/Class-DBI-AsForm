@@ -4,3 +4,4 @@ MANIFEST
 README
 test.pl
 AsForm.pm
+META.yml                                Module meta-data (added by MakeMaker)

@@ -1,5 +1,8 @@
 Revision history for Perl extension Class::DBI::AsForm.
 
+1.1   Sat Jan 24 19:54:25 GMT 2004
+    - Deal with nulls in has-a relationships.
+
 0.01  Sat Sep 20 12:16:00 2003
 	- original version; created by h2xs 1.21 with options
 		-AX -n Class::DBI::AsForm
