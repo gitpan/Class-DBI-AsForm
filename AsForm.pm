@@ -13,7 +13,7 @@ use HTML::Element;
 our $OLD_STYLE = 0;
 our @EXPORT    = qw( to_cgi to_field _to_textarea _to_textfield _to_select
 	type_of );
-our $VERSION = '2.4';
+our $VERSION = '2.41';
 
 =head1 NAME
 
@@ -104,7 +104,8 @@ sub to_field {
 
 sub _to_textarea {
 	my ($self, $col) = @_;
-	my $a = HTML::Element->new("textarea", name => $col);
+	my $a =
+		HTML::Element->new("textarea", name => $col, rows => "3", cols => "22");
 	if (ref $self) { $a->push_content($self->$col) }
 	$OLD_STYLE && return $a->as_HTML;
 	$a;
