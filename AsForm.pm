@@ -9,7 +9,7 @@ require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw( to_cgi to_field _to_textarea _to_textfield _to_select
 type_of );
-our $VERSION = '2.0';
+our $VERSION = '2.1';
 my %types_cache;
 
 =head1 NAME
@@ -103,13 +103,12 @@ sub type_of {
 sub _fill_cache {
     my $class = shift;
     my $sth = $class->db_Main->column_info(undef, undef, $class->table, '%');
-    $sth->execute();
     while ( my $ref = $sth->fetchrow_hashref() )
         {
-            next unless $ref->{TYPE_NAME} =~ /SET|ENUM/i;
             $types_cache{ $class. "/". $ref->{COLUMN_NAME} }{type} = $ref->{TYPE_NAME};
             $types_cache{ $class. "/". $ref->{COLUMN_NAME} }{'values'} 
-                    = [ @{$ref->{mysql_values}} ];
+                    = [ @{$ref->{mysql_values}} ]
+            if $ref->{TYPE_NAME} =~ /SET|ENUM/i;
     }
 }
 
@@ -123,8 +122,9 @@ sub _to_textarea {
 
 sub _to_textfield {
     my ($self, $col) = @_;
-    my $a = HTML::Element->new("input", type=> "text", name => $col,
-                       value => (ref $self && $self->$col));
+    my $value = ref $self && $self->$col;
+    my $a = HTML::Element->new("input", type=> "text", name => $col);
+    $a->attr("value" => $value) if $value;
     $OLD_STYLE && return $a->as_HTML;
     $a;
 }
@@ -136,7 +136,8 @@ sub _to_select {
     my $a = HTML::Element->new("select", name => $col);
     for (@objs) { 
         my $sel = HTML::Element->new("option", value => $_->id);
-        $sel->attr("selected" => "selected") if ref $self and $_->id == $self->id;
+        $sel->attr("selected" => "selected") if ref $self 
+                                                and eval { $_->id == $self->$col->id };
         $sel->push_content($_->stringify_self);
         $a->push_content($sel);
     }
