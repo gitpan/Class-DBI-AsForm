@@ -1,7 +1,9 @@
 Changes
+lib/Class/DBI/AsForm.pm
 Makefile.PL
-MANIFEST
+MANIFEST			This list of files
+META.yml
 README
-test.pl
-AsForm.pm
-META.yml                                Module meta-data (added by MakeMaker)
+t/01.t
+t/pod-coverage.t
+t/pod.t

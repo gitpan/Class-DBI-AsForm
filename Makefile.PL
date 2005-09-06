@@ -1,13 +1,13 @@
 use ExtUtils::MakeMaker;
-# See lib/ExtUtils/MakeMaker.pm for details of how to influence
-# the contents of the Makefile that is written.
 WriteMakefile(
-    NAME	    	=> 'Class::DBI::AsForm',
-    VERSION_FROM	=> 'AsForm.pm', # finds $VERSION
-    PREREQ_PM		=> {Class::DBI => 0.94,
-                        DBI => 1.21,
-                        HTML::Element => 0,
-                        Class::DBI::Plugin::Type => 0}, # e.g., Module::Name => 1.1
-    ABSTRACT_FROM   => 'AsForm.pm', # retrieve abstract from module
-    AUTHOR          => 'Simon Cozens <simon@cpan.org>'
+	NAME         => 'Class::DBI::AsForm',
+	VERSION_FROM => 'lib/Class/DBI/AsForm.pm',
+	ABSTRACT_FROM => 'lib/Class/DBI/AsForm.pm',          
+	PREREQ_PM    => {
+		'Class::DBI'               => 0.94,
+		'DBI'                      => 1.21,
+		'HTML::Element'            => 0,
+		'Class::DBI::Plugin::Type' => 0,
+	},                                      
+	AUTHOR => 'Tony Bowden <TMTM@cpan.org>'
 );

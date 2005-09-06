@@ -1,6 +1,7 @@
 package Class::DBI::AsForm;
 
 use 5.006;
+our $VERSION = '2.42';
 
 use strict;
 use warnings;
@@ -13,7 +14,6 @@ use HTML::Element;
 our $OLD_STYLE = 0;
 our @EXPORT    = qw( to_cgi to_field _to_textarea _to_textfield _to_select
 	type_of );
-our $VERSION = '2.41';
 
 =head1 NAME
 

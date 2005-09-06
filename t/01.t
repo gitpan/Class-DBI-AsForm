@@ -1,15 +1,13 @@
 package Foo;
 use Test::More;
-if (!require DBD::SQLite2) {
-    plan skip_all => "Couldn't load DBD::SQLite2";
-}
+eval "require DBD::SQLite" or plan skip_all => "Couldn't load DBD::SQLite";
 plan tests => 4;
 
 package DBI::Test;
 use base 'Class::DBI';
 
 BEGIN { unlink 'test.db'; };
-DBI::Test->set_db("Main", "dbi:SQLite2:dbname=test.db");
+DBI::Test->set_db("Main", "dbi:SQLite:dbname=test.db");
 DBI::Test->db_Main->do("CREATE TABLE foo (
    id integer not null primary key,
    bar integer,
@@ -33,6 +31,7 @@ package Foo;
 use base 'DBI::Test';
 Foo->table("foo");
 use_ok("Class::DBI::AsForm");
+no warnings 'once';
 $Class::DBI::AsForm::OLD_STYLE=1;
 *type_of = sub { "varchar" };
 
